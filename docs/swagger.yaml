@@ -1,0 +1,328 @@
+openapi: 3.0.3
+
+info:
+  title: FisioFlow API
+  version: 1.0.0
+  description: API REST para gerenciamento de pacientes e agendamentos de fisioterapia.
+
+servers:
+  - url: http://localhost:3000
+
+tags:
+  - name: Patients
+  - name: Appointments
+
+paths:
+
+  /patients:
+
+    post:
+      tags: [Patients]
+      summary: Criar paciente
+
+      description: |
+        ## Regras de negócio
+        - name obrigatório
+        - apenas letras e espaços
+        - age obrigatório (1 a 120)
+        - phone e diagnosis opcionais
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientInput'
+            example:
+              name: "Maria Silva"
+              age: 30
+              phone: "(81) 99999-0000"
+              diagnosis: "Dor lombar"
+
+      responses:
+        '201':
+          description: Paciente criado com sucesso
+        '400':
+          description: Erro de validação (nome ou idade inválidos)
+        '500':
+          description: Erro interno do servidor
+
+    get:
+      tags: [Patients]
+      summary: Listar pacientes
+
+      description: |
+        ## Regras de negócio
+        - retorna lista vazia se não houver pacientes
+        - exibe todos os pacientes cadastrados
+
+      responses:
+        '200':
+          description: Lista de pacientes
+        '500':
+          description: Erro interno do servidor
+
+  /patients/{id}:
+
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Patients]
+      summary: Buscar paciente por ID
+
+      description: |
+        ## Regras de negócio
+        - paciente deve existir
+        - retorna 404 se não encontrado
+
+      responses:
+        '200':
+          description: Paciente encontrado
+        '404':
+          description: Paciente não encontrado
+        '500':
+          description: Erro interno do servidor
+
+    put:
+      tags: [Patients]
+      summary: Atualizar paciente (atualização parcial)
+
+      description: |
+        ## Regras de negócio
+        - paciente deve existir
+        - atualização parcial (somente campos enviados são alterados)
+        - name deve conter apenas letras e espaços (se enviado)
+        - age deve estar entre 1 e 120 (se enviado)
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientInput'
+            example:
+              phone: "(81) 98888-7777"
+
+      responses:
+        '200':
+          description: Paciente atualizado com sucesso
+        '400':
+          description: Dados inválidos
+        '404':
+          description: Paciente não encontrado
+        '500':
+          description: Erro interno do servidor
+
+    delete:
+      tags: [Patients]
+      summary: Excluir paciente
+
+      description: |
+        ## Regras de negócio
+        - paciente deve existir
+        - não pode ser excluído se tiver agendamentos vinculados (409)
+
+      responses:
+        '200':
+          description: Paciente removido com sucesso
+        '404':
+          description: Paciente não encontrado
+        '409':
+          description: Paciente possui agendamentos
+        '500':
+          description: Erro interno do servidor
+
+
+  /appointments:
+
+    post:
+      tags: [Appointments]
+      summary: Criar agendamento
+
+      description: |
+        ## Regras de negócio
+        - patientId obrigatório e deve existir
+        - date obrigatória e não pode ser no passado
+        - time obrigatório (HH:MM)
+        - durationMinutes obrigatório e maior que 0
+        - type obrigatório
+        - não pode haver conflito de horário no mesmo dia (409)
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentInput'
+            example:
+              patientId: 1
+              date: "2026-07-20"
+              time: "10:00"
+              durationMinutes: 50
+              type: "Avaliação"
+              notes: "Primeira consulta"
+
+      responses:
+        '201':
+          description: Agendamento criado com sucesso
+        '400':
+          description: Dados inválidos ou paciente inexistente
+        '409':
+          description: Conflito de horário
+        '500':
+          description: Erro interno do servidor
+
+    get:
+      tags: [Appointments]
+      summary: Listar agendamentos
+
+      description: |
+        ## Regras de negócio
+        - retorna todos os agendamentos cadastrados
+        - retorna array vazio se não houver agendamentos
+
+      responses:
+        '200':
+          description: Lista de agendamentos
+        '500':
+          description: Erro interno do servidor
+
+
+  /appointments/{id}:
+
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    put:
+      tags: [Appointments]
+      summary: Atualizar agendamento (parcial)
+
+      description: |
+        ## Regras de negócio
+        - agendamento deve existir
+        - atualização parcial permitida
+        - se alterar horário, valida conflito (409)
+        - mantém campos não enviados
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentInput'
+            example:
+              type: "Pilates Clínico"
+              notes: "Atualização"
+
+      responses:
+        '200':
+          description: Agendamento atualizado com sucesso
+        '400':
+          description: Dados inválidos
+        '404':
+          description: Agendamento não encontrado
+        '409':
+          description: Conflito de horário
+        '500':
+          description: Erro interno do servidor
+
+    delete:
+      tags: [Appointments]
+      summary: Excluir agendamento
+
+      description: |
+        ## Regras de negócio
+        - agendamento deve existir
+
+      responses:
+        '200':
+          description: Agendamento removido com sucesso
+        '404':
+          description: Agendamento não encontrado
+        '500':
+          description: Erro interno do servidor
+
+
+  /appointments/day/{date}:
+
+    get:
+      tags: [Appointments]
+      summary: Buscar agendamentos por dia
+
+      description: |
+        ## Regras de negócio
+        - retorna apenas agendamentos da data informada
+        - retorna array vazio se não houver
+
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+
+      responses:
+        '200':
+          description: Lista de agendamentos do dia
+        '500':
+          description: Erro interno do servidor
+
+
+components:
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+
+    PatientInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Maria Silva"
+        age:
+          type: integer
+          example: 30
+        phone:
+          type: string
+          example: "(81) 99999-0000"
+        diagnosis:
+          type: string
+          example: "Dor lombar"
+
+    AppointmentInput:
+      type: object
+      properties:
+        patientId:
+          type: integer
+          example: 1
+        date:
+          type: string
+          format: date
+          example: "2026-07-20"
+        time:
+          type: string
+          example: "10:00"
+        durationMinutes:
+          type: integer
+          example: 50
+        type:
+          type: string
+          example: "Avaliação"
+        notes:
+          type: string
+          example: "Paciente com dor"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string

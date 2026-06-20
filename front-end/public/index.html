@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FisioFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon"></span>
+      <span class="brand-name">FisioFlow</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" data-page="patients" onclick="showPage('patients')">
+        <span class="nav-icon"></span>
+        <span>Pacientes</span>
+        <span class="nav-badge" id="badge-patients">0</span>
+      </button>
+      <button class="nav-btn" data-page="appointments" onclick="showPage('appointments')">
+        <span class="nav-icon"></span>
+        <span>Agendamentos</span>
+        <span class="nav-badge" id="badge-appointments">0</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <p>by Priscila Gianni</p>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- ===================== PATIENTS PAGE ===================== -->
+    <section id="page-patients" class="page active">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Pacientes</h1>
+          <p class="page-subtitle">Gerencie o cadastro de pacientes</p>
+        </div>
+        <button class="btn btn-primary" onclick="openPatientModal()">+ Novo Paciente</button>
+      </div>
+
+      <!-- Counter -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-number" id="patients-count">0</span>
+          <span class="stat-label">Pacientes cadastrados</span>
+        </div>
+      </div>
+
+      <!-- Patient List -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Lista de Pacientes</h2>
+          <input class="search-input" type="text" placeholder="Buscar por nome..." oninput="filterPatients(this.value)" />
+        </div>
+        <div id="patients-list" class="items-list">
+          <div class="empty-state">
+            <span class="empty-icon"></span>
+            <p>Nenhum paciente cadastrado ainda.</p>
+            <button class="btn btn-primary" onclick="openPatientModal()">Cadastrar primeiro paciente</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== APPOINTMENTS PAGE ===================== -->
+    <section id="page-appointments" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Agendamentos</h1>
+          <p class="page-subtitle">Gerencie os atendimentos de fisioterapia</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAppointmentModal()">+ Novo Agendamento</button>
+      </div>
+
+      <!-- Counter -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-number" id="appointments-count">0</span>
+          <span class="stat-label">Agendamentos registrados</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="appointments-today">0</span>
+          <span class="stat-label">Agendamentos hoje</span>
+        </div>
+      </div>
+
+      <!-- Filter by day -->
+      <div class="card filter-card">
+        <label class="field-label">Filtrar por dia</label>
+        <div class="filter-row">
+          <input type="date" class="input" id="filter-date" />
+          <button class="btn btn-secondary" onclick="filterByDay()">Filtrar</button>
+          <button class="btn btn-ghost" onclick="clearFilter()">Limpar filtro</button>
+        </div>
+      </div>
+
+      <!-- Appointment List -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Lista de Agendamentos</h2>
+        </div>
+        <div id="appointments-list" class="items-list">
+          <div class="empty-state">
+            <span class="empty-icon"></span>
+            <p>Nenhum agendamento registrado ainda.</p>
+            <button class="btn btn-primary" onclick="openAppointmentModal()">Criar primeiro agendamento</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== MODAL: PATIENT ===================== -->
+  <div id="modal-patient" class="modal-overlay" onclick="closeModalOnOverlay(event, 'modal-patient')">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-patient-title" class="modal-title">Novo Paciente</h2>
+        <button class="modal-close" onclick="closeModal('modal-patient')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="patient-id" />
+        <div class="field-group">
+          <label class="field-label" for="patient-name">Nome <span class="required">*</span></label>
+          <input class="input" type="text" id="patient-name" placeholder="Nome completo" />
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="patient-age">Idade <span class="required">*</span></label>
+            <input class="input" type="number" id="patient-age" placeholder="Ex: 35" min="1" max="120" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="patient-phone">Telefone</label>
+            <input class="input" type="text" id="patient-phone" placeholder="(81) 99999-9999" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="patient-diagnosis">Diagnóstico</label>
+          <textarea class="input textarea" id="patient-diagnosis" placeholder="Diagnóstico clínico (opcional)"></textarea>
+        </div>
+        <div id="patient-error" class="error-msg" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-patient')">Cancelar</button>
+        <button class="btn btn-primary" onclick="savePatient()">Salvar Paciente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: APPOINTMENT ===================== -->
+  <div id="modal-appointment" class="modal-overlay" onclick="closeModalOnOverlay(event, 'modal-appointment')">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-appointment-title" class="modal-title">Novo Agendamento</h2>
+        <button class="modal-close" onclick="closeModal('modal-appointment')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="appointment-id" />
+        <div class="field-group">
+          <label class="field-label" for="appointment-patient">Paciente <span class="required">*</span></label>
+          <select class="input select" id="appointment-patient">
+            <option value="">Selecione um paciente...</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="appointment-date">Data <span class="required">*</span></label>
+            <input class="input" type="date" id="appointment-date" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="appointment-time">Horário <span class="required">*</span></label>
+            <input class="input" type="time" id="appointment-time" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="appointment-duration">Duração (min) <span class="required">*</span></label>
+            <input class="input" type="number" id="appointment-duration" placeholder="Ex: 50" min="1" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="appointment-type">Tipo de Atendimento <span class="required">*</span></label>
+            <select class="input select" id="appointment-type">
+              <option value="">Selecione...</option>
+              <option value="Avaliação">Avaliação</option>
+              <option value="Fisioterapia Ortopédica">Fisioterapia Ortopédica</option>
+              <option value="Fisioterapia Neurológica">Fisioterapia Neurológica</option>
+              <option value="Fisioterapia Respiratória">Fisioterapia Respiratória</option>
+              <option value="Fisioterapia Pélvica">Fisioterapia Pélvica</option>
+              <option value="Pilates Clínico">Pilates Clínico</option>
+              <option value="RPG">RPG</option>
+              <option value="Acupuntura">Acupuntura</option>
+              <option value="Retorno">Retorno</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="appointment-notes">Observações</label>
+          <textarea class="input textarea" id="appointment-notes" placeholder="Observações clínicas (opcional)"></textarea>
+        </div>
+        <div id="appointment-error" class="error-msg" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-appointment')">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveAppointment()">Salvar Agendamento</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: CONFIRM DELETE ===================== -->
+  <div id="modal-confirm" class="modal-overlay" onclick="closeModalOnOverlay(event, 'modal-confirm')">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Confirmar exclusão</h2>
+        <button class="modal-close" onclick="closeModal('modal-confirm')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-message" class="confirm-text">Tem certeza que deseja excluir?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancelar</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

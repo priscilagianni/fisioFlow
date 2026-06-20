@@ -1,0 +1,42 @@
+{
+  "name": "fisioflow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test:api": "mocha tests/api/**/*.test.js --timeout 5000",
+    "test:report": "mochawesome-merge cypress/reports/*.json -o cypress/reports/output.json && npx mochawesome-report-generator cypress/reports/output.json -f report -o cypress/reports"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "api",
+    "qa",
+    "cypress",
+    "automation",
+    "fisioterapia",
+    "portfolio"
+  ],
+  "author": "Priscila Gianni",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "cypress": "^15.17.0",
+    "mocha": "^11.7.6",
+    "mochawesome": "^7.1.4",
+    "mochawesome-merge": "^4.4.1",
+    "mochawesome-report-generator": "^6.3.2",
+    "supertest": "^7.2.2"
+  },
+  "dependencies": {
+    "chai": "^4.3.10",
+    "cors": "^2.8.6",
+    "express": "^4.21.2",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  }
+}
