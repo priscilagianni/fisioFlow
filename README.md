@@ -29,19 +29,19 @@ FisioFlow é uma aplicação completa com:
 ## Instalação e execução
 
 ```bash
-git clone https://github.com/priscilagianni/fisioFlow-Api.git
-cd fisioFlow-Api
+git clone https://github.com/priscilagianni/fisioFlow
+cd fisioFlow
 npm install
 npm run dev
 ```
 
 Após iniciar:
 
-| Serviço | URL |
-|---|---|
-| Frontend | http://localhost:3000 |
-| API | http://localhost:3000 |
-| Swagger | http://localhost:3000/api-docs |
+| Serviço   | Descrição                        | URL |
+|----------|----------------------------------|-----|
+| Frontend | Interface web         | http://localhost:3000 |
+| API      | Backend REST          | http://localhost:3000/patients /appointments |
+| Swagger  | Documentação da API     | http://localhost:3000/api-docs |
 
 ---
 
@@ -174,6 +174,26 @@ Request → Routes → Controllers → Services → Response
 | Database | Armazenamento em memória (arrays + contadores de ID) |
 
 ---
+
+## Estratégia de testes
+
+- Testes E2E: Cypress
+- Testes de API: Mocha + Supertest
+- Cobertura:
+- Fluxo de pacientes
+- Fluxo de agendamentos
+- Validações de regra de negócio
+
+  ## Status Codes
+
+| Código | Significado |
+|--------|-------------|
+| 200 | Sucesso |
+| 201 | Criado com sucesso |
+| 400 | Erro de validação |
+| 404 | Recurso não encontrado |
+| 409 | Conflito de regra de negócio |
+| 500 | Erro interno do servidor |
 
 ## Postman
 
