@@ -22,10 +22,10 @@ paths:
 
       description: |
         ## Regras de negócio
-        - name obrigatório
-        - apenas letras e espaços
-        - age obrigatório (1 a 120)
-        - phone e diagnosis opcionais
+        - name é obrigatório
+        - deve conter letras e espaços
+        - age é obrigatório e deve estar entre 1 e 120
+        - phone e diagnosis são opcionais
 
       requestBody:
         required: true
@@ -43,7 +43,7 @@ paths:
         '201':
           description: Paciente criado com sucesso
         '400':
-          description: Erro de validação (nome ou idade inválidos)
+          description: Erro de validação
         '500':
           description: Erro interno do servidor
 
@@ -51,16 +51,12 @@ paths:
       tags: [Patients]
       summary: Listar pacientes
 
-      description: |
-        ## Regras de negócio
-        - retorna lista vazia se não houver pacientes
-        - exibe todos os pacientes cadastrados
-
       responses:
         '200':
           description: Lista de pacientes
         '500':
           description: Erro interno do servidor
+
 
   /patients/{id}:
 
@@ -70,11 +66,6 @@ paths:
     get:
       tags: [Patients]
       summary: Buscar paciente por ID
-
-      description: |
-        ## Regras de negócio
-        - paciente deve existir
-        - retorna 404 se não encontrado
 
       responses:
         '200':
@@ -86,14 +77,13 @@ paths:
 
     put:
       tags: [Patients]
-      summary: Atualizar paciente (atualização parcial)
+      summary: Atualizar paciente
 
       description: |
         ## Regras de negócio
         - paciente deve existir
-        - atualização parcial (somente campos enviados são alterados)
-        - name deve conter apenas letras e espaços (se enviado)
-        - age deve estar entre 1 e 120 (se enviado)
+        - name deve conter letras e espaços
+        - age deve estar entre 1 e 120
 
       requestBody:
         required: true
@@ -102,7 +92,10 @@ paths:
             schema:
               $ref: '#/components/schemas/PatientInput'
             example:
+              name: "Maria Silva"
+              age: 31
               phone: "(81) 98888-7777"
+              diagnosis: "Dor lombar"
 
       responses:
         '200':
@@ -121,7 +114,7 @@ paths:
       description: |
         ## Regras de negócio
         - paciente deve existir
-        - não pode ser excluído se tiver agendamentos vinculados (409)
+        - não pode ser excluído se tiver agendamentos (409)
 
       responses:
         '200':
@@ -142,12 +135,12 @@ paths:
 
       description: |
         ## Regras de negócio
-        - patientId obrigatório e deve existir
-        - date obrigatória e não pode ser no passado
+        - patientId deve existir
+        - date obrigatória (YYYY-MM-DD) e não pode ser no passado
         - time obrigatório (HH:MM)
-        - durationMinutes obrigatório e maior que 0
+        - durationMinutes obrigatório e > 0
         - type obrigatório
-        - não pode haver conflito de horário no mesmo dia (409)
+        - não pode haver conflito de horário (409)
 
       requestBody:
         required: true
@@ -167,7 +160,7 @@ paths:
         '201':
           description: Agendamento criado com sucesso
         '400':
-          description: Dados inválidos ou paciente inexistente
+          description: Dados inválidos
         '409':
           description: Conflito de horário
         '500':
@@ -176,11 +169,6 @@ paths:
     get:
       tags: [Appointments]
       summary: Listar agendamentos
-
-      description: |
-        ## Regras de negócio
-        - retorna todos os agendamentos cadastrados
-        - retorna array vazio se não houver agendamentos
 
       responses:
         '200':
@@ -194,15 +182,26 @@ paths:
     parameters:
       - $ref: '#/components/parameters/Id'
 
+    get:
+      tags: [Appointments]
+      summary: Buscar agendamento por ID
+
+      responses:
+        '200':
+          description: Agendamento encontrado
+        '404':
+          description: Agendamento não encontrado
+        '500':
+          description: Erro interno do servidor
+
     put:
       tags: [Appointments]
-      summary: Atualizar agendamento (parcial)
+      summary: Atualizar agendamento
 
       description: |
         ## Regras de negócio
         - agendamento deve existir
-        - atualização parcial permitida
-        - se alterar horário, valida conflito (409)
+        - valida conflito de horário (409)
         - mantém campos não enviados
 
       requestBody:
@@ -212,7 +211,11 @@ paths:
             schema:
               $ref: '#/components/schemas/AppointmentInput'
             example:
-              type: "Pilates Clínico"
+              patientId: 1
+              date: "2026-07-20"
+              time: "10:00"
+              durationMinutes: 50
+              type: "Avaliação"
               notes: "Atualização"
 
       responses:
@@ -250,11 +253,6 @@ paths:
       tags: [Appointments]
       summary: Buscar agendamentos por dia
 
-      description: |
-        ## Regras de negócio
-        - retorna apenas agendamentos da data informada
-        - retorna array vazio se não houver
-
       parameters:
         - name: date
           in: path
@@ -287,42 +285,34 @@ components:
       properties:
         name:
           type: string
-          example: "Maria Silva"
         age:
           type: integer
-          example: 30
         phone:
           type: string
-          example: "(81) 99999-0000"
         diagnosis:
           type: string
-          example: "Dor lombar"
 
     AppointmentInput:
       type: object
       properties:
         patientId:
           type: integer
-          example: 1
         date:
           type: string
           format: date
-          example: "2026-07-20"
         time:
           type: string
-          example: "10:00"
         durationMinutes:
           type: integer
-          example: 50
         type:
           type: string
-          example: "Avaliação"
         notes:
           type: string
-          example: "Paciente com dor"
 
     ErrorResponse:
       type: object
       properties:
         error:
           type: string
+      required:
+        - error
