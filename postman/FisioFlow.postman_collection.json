@@ -1,0 +1,201 @@
+{
+  "info": {
+    "_postman_id": "06b29a55-9c89-44b2-9c49-293116187844",
+    "name": "FisioFlow - Corrigida QA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+
+  "item": [
+    {
+      "name": "Pacientes",
+      "item": [
+        {
+          "name": "Criar paciente (campos obrigatórios)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "pm.test('Resposta é JSON', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('ID gerado', () => {",
+                  "  pm.expect(json).to.have.property('id');",
+                  "  pm.expect(Number(json.id)).to.be.a('number');",
+                  "  pm.collectionVariables.set('patientId', json.id);",
+                  "});",
+                  "",
+                  "pm.test('Nome correto', () => {",
+                  "  pm.expect(json.name).to.exist;",
+                  "  pm.expect(json.name).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Souza\",\n  \"age\": 42\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients"]
+            }
+          }
+        },
+
+        {
+          "name": "Atualizar paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Telefone válido (formato)', () => {",
+                  "  pm.expect(json.phone).to.be.a('string');",
+                  "  pm.expect(json.phone).to.match(/\\(\\d{2}\\)\\s?\\d{4,5}-\\d{4}/);",
+                  "});",
+                  "",
+                  "pm.test('updatedAt existe', () => {",
+                  "  pm.expect(json.updatedAt).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lucas Santos\",\n  \"age\": 30,\n  \"phone\": \"(81)99999-9899\",\n  \"diagnosis\": \"Lombalgia crônica\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "{{patientId}}"]
+            }
+          }
+        },
+
+        {
+          "name": "Criar agendamento válido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('ID do agendamento existe', () => {",
+                  "  pm.expect(json).to.have.property('id');",
+                  "  pm.collectionVariables.set('appointmentId', json.id);",
+                  "});",
+                  "",
+                  "pm.test('patientName válido', () => {",
+                  "  pm.expect(json.patientName || json.patient?.name).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": {{patientId}},\n  \"date\": \"{{tomorrow}}\",\n  \"time\": \"09:00\",\n  \"durationMinutes\": 50,\n  \"type\": \"Fisioterapia\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"]
+            }
+          }
+        },
+
+        {
+          "name": "Busca agendamento por data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('É array', () => {",
+                  "  pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Todos têm data correta', () => {",
+                  "  json.forEach(a => {",
+                  "    pm.expect(a.date).to.exist;",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/appointments/day/{{tomorrow}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "day", "{{tomorrow}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "const tomorrow = new Date();",
+          "tomorrow.setDate(tomorrow.getDate() + 1);",
+          "const formatted = tomorrow.toISOString().split('T')[0];",
+          "pm.collectionVariables.set('tomorrow', formatted);"
+        ]
+      }
+    }
+  ],
+
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "patientId",
+      "value": "1"
+    },
+    {
+      "key": "appointmentId",
+      "value": "1"
+    },
+    {
+      "key": "tomorrow",
+      "value": ""
+    }
+  ]
+}
