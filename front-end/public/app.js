@@ -1,16 +1,12 @@
-/* =============================================
-   FisioFlow — Frontend App
-   ============================================= */
-
 const API = 'http://localhost:3000';
 
-// ===================== STATE =====================
+
 
 let allPatients = [];
 let allAppointments = [];
 let deleteCallback = null;
 
-// ===================== NAV =====================
+
 
 function showPage(page) {
   document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
@@ -26,8 +22,6 @@ function showPage(page) {
   }
 }
 
-// ===================== TOAST =====================
-
 function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -37,8 +31,6 @@ function showToast(msg, isError = false) {
     t.classList.remove('show');
   }, 3200);
 }
-
-// ===================== MODAL HELPERS =====================
 
 function openModal(id) {
   document.getElementById(id).classList.add('open');
@@ -51,8 +43,6 @@ function closeModal(id) {
 function closeModalOnOverlay(event, id) {
   if (event.target === event.currentTarget) closeModal(id);
 }
-
-// ===================== PATIENTS =====================
 
 async function loadPatients() {
   try {
@@ -131,7 +121,6 @@ function openPatientModal() {
   setTimeout(() => document.getElementById('patient-name').focus(), 100);
 }
 
-// Open modal to EDIT patient
 async function openEditPatient(id) {
   const patient = allPatients.find((p) => p.id === id);
   if (!patient) return;
@@ -210,8 +199,6 @@ function askDeletePatient(id, name) {
   openModal('modal-confirm');
 }
 
-// ===================== APPOINTMENTS =====================
-
 async function loadAppointments() {
   try {
     const res = await fetch(`${API}/appointments`);
@@ -243,7 +230,6 @@ function renderAppointments(appointments) {
     return;
   }
 
-  // Sort by date+time
   const sorted = [...appointments].sort((a, b) => {
     const da = `${a.date}T${a.time}`;
     const db = `${b.date}T${b.time}`;
@@ -291,7 +277,6 @@ function clearFilter() {
   renderAppointments(allAppointments);
 }
 
-// Open modal for NEW appointment
 function openAppointmentModal() {
   document.getElementById('modal-appointment-title').textContent = 'Novo Agendamento';
   document.getElementById('appointment-id').value = '';
@@ -306,7 +291,6 @@ function openAppointmentModal() {
   openModal('modal-appointment');
 }
 
-// Open modal to EDIT appointment
 function openEditAppointment(id) {
   const appt = allAppointments.find((a) => a.id === id);
   if (!appt) return;
@@ -397,8 +381,6 @@ function confirmDelete() {
   }
 }
 
-// ===================== UTILS =====================
-
 function updateBadge(section, count) {
   const badge = document.getElementById(`badge-${section}`);
   if (badge) badge.textContent = count;
@@ -425,8 +407,6 @@ function truncate(str, len) {
   return str.length > len ? str.substring(0, len) + '…' : str;
 }
 
-// ===================== PHONE MASK =====================
-
 function applyPhoneMask(value) {
   const digits = value.replace(/\D/g, '').slice(0, 11);
   if (digits.length <= 10) {
@@ -442,15 +422,11 @@ function applyPhoneMask(value) {
   }
 }
 
-// ===================== KEYBOARD =====================
-
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     ['modal-patient', 'modal-appointment', 'modal-confirm'].forEach(closeModal);
   }
 });
-
-// ===================== INIT =====================
 
 window.addEventListener('DOMContentLoaded', () => {
   loadPatients();
