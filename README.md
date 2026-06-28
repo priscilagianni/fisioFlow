@@ -20,6 +20,25 @@ FisioFlow é uma aplicação completa com:
 
 ---
 
+## Documentação
+
+A documentação do projeto está organizada na **Wiki** do repositório.
+
+Lá você encontrará:
+
+- Visão Geral do Produto
+- Visão Geral de Tecnologia e QA
+- User Stories
+- Regras de Negócio
+- Casos de Teste
+- Casos de Teste Detalhados
+- Cenários de Teste em BDD (Gherkin)
+- Estratégia de Testes
+- Evidências de Testes
+- Testes Automatizados
+
+---
+
 ## Requisitos
 
 - Node.js 18+
