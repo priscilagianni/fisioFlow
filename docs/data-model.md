@@ -83,7 +83,7 @@ newStart < existingEnd AND newEnd > existingStart
 ### Status Codes (Appointment)
 
 | Código | Significado |
-|--------|------------|
+|--------|-----------|
 | 201 | Criado com sucesso |
 | 200 | Operações de consulta realizadas com sucesso |
 | 400 | Erro de validação (dados inválidos) |
